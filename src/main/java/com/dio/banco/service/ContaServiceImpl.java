@@ -5,10 +5,7 @@ import com.dio.banco.dto.NovaContaDTO;
 import com.dio.banco.entity.Conta;
 import com.dio.banco.entity.ContaCorrente;
 import com.dio.banco.entity.ContaPoupanca;
-import com.dio.banco.exception.AgenciaNaoEncontradaException;
-import com.dio.banco.exception.ClienteNaoEncontradoException;
-import com.dio.banco.exception.ContaJaRegistradaException;
-import com.dio.banco.exception.ContaNaoEncontradaException;
+import com.dio.banco.exception.*;
 import com.dio.banco.repository.AgenciaRepository;
 import com.dio.banco.repository.ClienteRepository;
 import com.dio.banco.repository.ContaRepository;
@@ -54,9 +51,9 @@ public class ContaServiceImpl implements ContaService {
     }
 
     @Override
-    public ContaDTO buscarPorId(Long id) throws ContaNaoEncontradaException {
-        var contaOptional = contaRepository.findById(id);
-        return modelMapper.map(contaOptional.orElseThrow(ContaNaoEncontradaException::new), ContaDTO.class);
+    public ContaDTO buscar(Long id) throws ContaNaoEncontradaException {
+        Conta conta = buscarPorId(id);
+        return modelMapper.map(conta, ContaDTO.class);
     }
 
     @Override
@@ -66,6 +63,40 @@ public class ContaServiceImpl implements ContaService {
                 .stream()
                 .map(conta -> modelMapper.map(conta, ContaDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BigDecimal sacar(Long id, BigDecimal valor) throws ContaNaoEncontradaException, SaldoIndisponivelException {
+        Conta conta = buscarPorId(id);
+
+        if (conta.getSaldo().subtract(valor).compareTo(BigDecimal.ZERO) < 0) {
+            throw new SaldoIndisponivelException();
+        }
+
+        conta.setSaldo(conta.getSaldo().subtract(valor));
+        return contaRepository.save(conta).getSaldo();
+    }
+
+    @Override
+    public BigDecimal depositar(Long id, BigDecimal valor) throws ContaNaoEncontradaException {
+        Conta conta = buscarPorId(id);
+        conta.setSaldo(conta.getSaldo().add(valor));
+        return contaRepository.save(conta).getSaldo();
+    }
+
+    @Override
+    public BigDecimal transferir(Long id, BigDecimal valor, Long outroId)
+            throws ContaNaoEncontradaException, SaldoIndisponivelException {
+        // busca ambas as contas para verificar se existem antes do inicio da transacao
+        buscarPorId(id);
+        buscarPorId(outroId);
+        var saldo = sacar(id, valor);
+        depositar(outroId, valor);
+        return saldo;
+    }
+
+    private Conta buscarPorId(Long id) throws ContaNaoEncontradaException {
+        return contaRepository.findById(id).orElseThrow(ContaNaoEncontradaException::new);
     }
 
 }

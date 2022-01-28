@@ -29,17 +29,18 @@ public class AgenciaServiceImpl implements AgenciaService {
         // verifica se já não existe agencia do mesmo banco com o mesmo número
         List<AgenciaDTO> agencias = agenciaRepository.findByNumero(novaAgenciaDTO.getNumero());
         for (AgenciaDTO agencia : agencias) {
-            if (agencia.getBanco().getCodigo().equals(novaAgenciaDTO.getBanco().getCodigo())) {
+            if (agencia.getBanco().getCodigo().equals(novaAgenciaDTO.getCodigoBanco())) {
                 throw new AgenciaJaRegistradaException();
             }
         }
 
-        novaAgenciaDTO.setBanco(
-                bancoRepository.findByCodigo(novaAgenciaDTO.getBanco().getCodigo())
+        Agencia novaAgencia = new Agencia();
+        novaAgencia.setNumero(novaAgenciaDTO.getNumero());
+        novaAgencia.setBanco(bancoRepository.findByCodigo(novaAgenciaDTO.getCodigoBanco())
                         .orElseThrow(BancoNaoEncontradoException::new)
         );
 
-        var agenciaSalva = agenciaRepository.save(modelMapper.map(novaAgenciaDTO, Agencia.class));
+        var agenciaSalva = agenciaRepository.save(novaAgencia);
         return modelMapper.map(agenciaSalva, AgenciaDTO.class);
     }
 
