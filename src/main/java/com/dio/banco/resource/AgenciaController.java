@@ -4,7 +4,6 @@ import com.dio.banco.dto.AgenciaDTO;
 import com.dio.banco.dto.NovaAgenciaDTO;
 import com.dio.banco.exception.AgenciaJaRegistradaException;
 import com.dio.banco.exception.AgenciaNaoEncontradaException;
-import com.dio.banco.exception.BancoNaoEncontradoException;
 import com.dio.banco.service.AgenciaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ public class AgenciaController {
 
     @PostMapping
     public ResponseEntity<AgenciaDTO> salvar(@RequestBody NovaAgenciaDTO novaAgenciaDTO)
-            throws AgenciaJaRegistradaException, BancoNaoEncontradoException {
+            throws AgenciaJaRegistradaException {
         var agenciaDTO = agenciaService.salvar(novaAgenciaDTO);
         return new ResponseEntity<>(agenciaDTO, HttpStatus.CREATED);
     }

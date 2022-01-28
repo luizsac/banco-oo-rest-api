@@ -16,9 +16,6 @@ public class Agencia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long agenciaId;
-    @ManyToOne
-    @JoinColumn(name = "banco_id")
-    private Banco banco;
     @Column(nullable = false)
     private Integer numero;
     @JsonIgnore

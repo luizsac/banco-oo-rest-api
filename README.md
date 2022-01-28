@@ -1,0 +1,1 @@
+### Essa API é apenas um exercício de orientação a objetos. É uma versão super simplificada de um sistema de banco para o projeto "Criando um Banco Digital com Java e Orientação a Objetos" da plataforma de ensino DIO.

@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class NovaAgenciaDTO {
 
-    private Integer codigoBanco;
     private Integer numero;
 
 }
